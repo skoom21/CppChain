@@ -13,3 +13,4 @@ add_executable(backend
 file(COPY frontend DESTINATION ${CMAKE_BINARY_DIR})
 
 target_include_directories(backend PRIVATE backend)
+target_include_directories(backend PRIVATE cpp-httplib)
