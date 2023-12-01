@@ -1,11 +1,13 @@
-#include "blockchain.h"
-#include "server.h"
+#include "websocket/WebSocketServer.h"
 
 int main() {
-    Server server("localhost", 8080);
+    // Initialize blockchain and other components
 
-    // Start the server
-    server.run();
+    // Set up WebSocket server
+    WebSocketServer websocketServer;
+
+    // Run WebSocket server
+    websocketServer.run();
 
     return 0;
 }
