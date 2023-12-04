@@ -4,17 +4,15 @@
 #include <vector>
 #include "Block.h"
 
-using namespace std;
-
 class Blockchain {
 public:
-    Blockchain();
-    void mineBlock(const vector<Transaction>& transactions);
-    bool isChainValid() const;
-    Block createNewBlock(const vector<Transaction>& transactions);
+    Blockchain(); // Constructor
+    void mineBlock(std::vector<Transaction> transactions);
+    Block createNewBlock(std::vector<Transaction> transactions);
+    bool isChainValid();
     // Other utility functions like getting the last block, etc.
 private:
-    vector<Block> chain;
+    std::vector<Block> chain;
 };
 
 #endif // BLOCKCHAIN_H

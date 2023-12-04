@@ -4,30 +4,16 @@
 #include <string>
 #include <vector>
 #include "Transaction.h"
-#include <ctime>
-#include <openssl/sha.h>
-#include <sstream>
-#include <iomanip>
 
 using namespace std;
 
-class Block {
+class Block
+{
 public:
-    Block();
-    Block(int index, const string& previousHash, const vector<Transaction>& transactions,
-          const string& merkleRoot, const string& timestamp, const string& nonce, const string& hash);
+    Block(); // Default constructor
+    Block(int size, string prevhash, vector<Transaction> transactions);
 
-    string calculateHash() const;
-    bool isHashValid() const;
-    int getIndex() const;
-    string getPreviousHash() const;
-    vector<Transaction> getTransactions() const;
-    string getMerkleRoot() const;
-    string getTimestamp() const;
-    string getNonce() const;
-    string getHash() const;
-
-    void setMerkleRoot(const string& merkleRoot);
+    // Additional constructor and member functions go here
 
 private:
     int index;
@@ -37,6 +23,19 @@ private:
     string timestamp;
     string nonce;
     string hash;
+
+public:
+    string calculateHash();
+    bool isHashValid();
+    int getIndex();
+    string getPreviousHash();
+    vector<Transaction> getTransactions();
+    string getMerkleRoot();
+    string getTimestamp();
+    string getNonce();
+    string getHash();
+    void setMerkleRoot(string merkleRoot);
+    void printBlock(Block block);
 };
 
 #endif // BLOCK_H

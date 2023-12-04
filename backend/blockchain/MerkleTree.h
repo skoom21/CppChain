@@ -4,15 +4,15 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
-class MerkleTree {
+class MerkleTree
+{
 public:
-    MerkleTree(const vector<string>& transactions);
-    string getMerkleRoot() const;
+    MerkleTree(std::vector<std::string> transactions);
+    std::string getMerkleRoot();
+
 private:
-    vector<string> merkleTree;
-    string calculateMerkleRoot(const vector<string>& merkleTree);
+    std::vector<std::string> merkleTree;
+    std::string calculateMerkleRoot(std::vector<std::string> merkleTree);
 };
 
 #endif // MERKLE_TREE_H
