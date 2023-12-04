@@ -4,31 +4,39 @@
 #include <string>
 #include <vector>
 #include "Transaction.h"
+#include <ctime>
+#include <openssl/sha.h>
+#include <sstream>
+#include <iomanip>
+
+using namespace std;
 
 class Block {
 public:
     Block();
-    Block(int index, const std::string& previousHash, const std::vector<Transaction>& transactions,
-          const std::string& merkleRoot, const std::string& timestamp, const std::string& nonce, const std::string& hash);
+    Block(int index, const string& previousHash, const vector<Transaction>& transactions,
+          const string& merkleRoot, const string& timestamp, const string& nonce, const string& hash);
 
+    string calculateHash() const;
+    bool isHashValid() const;
     int getIndex() const;
-    std::string getPreviousHash() const;
-    std::vector<Transaction> getTransactions() const;
-    std::string getMerkleRoot() const;
-    std::string getTimestamp() const;
-    std::string getNonce() const;
-    std::string getHash() const;
+    string getPreviousHash() const;
+    vector<Transaction> getTransactions() const;
+    string getMerkleRoot() const;
+    string getTimestamp() const;
+    string getNonce() const;
+    string getHash() const;
 
-    void setMerkleRoot(const std::string& merkleRoot);
+    void setMerkleRoot(const string& merkleRoot);
 
 private:
     int index;
-    std::string previousHash;
-    std::vector<Transaction> transactions;
-    std::string merkleRoot;
-    std::string timestamp;
-    std::string nonce;
-    std::string hash;
+    string previousHash;
+    vector<Transaction> transactions;
+    string merkleRoot;
+    string timestamp;
+    string nonce;
+    string hash;
 };
 
 #endif // BLOCK_H

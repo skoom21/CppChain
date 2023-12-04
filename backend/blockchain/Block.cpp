@@ -1,44 +1,80 @@
 #include "Block.h"
 
-Block::Block() {
+Block::Block()
+{
     // Initialize block properties here
+    
 }
 
-Block::Block(int index, const std::string& previousHash, const std::vector<Transaction>& transactions,
-             const std::string& merkleRoot, const std::string& timestamp, const std::string& nonce, const std::string& hash)
+Block::Block(int index, const string &previousHash, const vector<Transaction> &transactions,
+             const string &merkleRoot, const string &timestamp, const string &nonce, const string &hash)
     : index(index), previousHash(previousHash), transactions(transactions),
-      merkleRoot(merkleRoot), timestamp(timestamp), nonce(nonce), hash(hash) {
+      merkleRoot(merkleRoot), timestamp(timestamp), nonce(nonce), hash(hash)
+{
     // Implement constructor logic if needed
 }
 
-int Block::getIndex() const {
+
+string Block::calculateHash() const
+{
+    string dataToHash = to_string(index) + previousHash + merkleRoot + timestamp + nonce;
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, dataToHash.c_str(), dataToHash.length());
+    SHA256_Final(hash, &sha256);
+
+    std::stringstream ss;
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        ss << hex << setw(2) << setfill('0') << static_cast<int>(hash[i]);
+    }
+
+    return ss.str();
+}
+
+bool Block::isHashValid() const
+{
+    return calculateHash() == hash;
+}
+
+int Block::getIndex() const
+{
     return index;
 }
 
-std::string Block::getPreviousHash() const {
+string Block::getPreviousHash() const
+{
     return previousHash;
 }
 
-std::vector<Transaction> Block::getTransactions() const {
+vector<Transaction> Block::getTransactions() const
+{
     return transactions;
 }
 
-std::string Block::getMerkleRoot() const {
+string Block::getMerkleRoot() const
+{
     return merkleRoot;
 }
 
-std::string Block::getTimestamp() const {
+string Block::getTimestamp() const
+{
     return timestamp;
 }
 
-std::string Block::getNonce() const {
+string Block::getNonce() const
+{
     return nonce;
 }
 
-std::string Block::getHash() const {
+string Block::getHash() const
+{
     return hash;
 }
 
-void Block::setMerkleRoot(const std::string& merkleRoot) {
+void Block::setMerkleRoot(const string &merkleRoot)
+{
     this->merkleRoot = merkleRoot;
 }
