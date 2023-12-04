@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "bitset": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "iomanip": "cpp",
+        "iostream": "cpp"
     }
 }

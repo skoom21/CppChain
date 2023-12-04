@@ -8,12 +8,9 @@ set(CMAKE_CXX_STANDARD 17)
 # Find packages or libraries if needed (e.g., Boost, OpenSSL, etc.)
 # find_package(Boost REQUIRED)
 
-# Include WebSocket++ library (adjust the path)
-add_subdirectory(../websocketpp)
-
 # Define your C++ executable target
 add_executable(BlockchainSimulation
-    main.cpp
+    backend/blockchain/main.cpp
     backend/blockchain/Block.h
     backend/blockchain/Block.cpp
     backend/blockchain/Transaction.h
@@ -22,21 +19,14 @@ add_executable(BlockchainSimulation
     backend/blockchain/Blockchain.cpp
     backend/blockchain/MerkleTree.h
     backend/blockchain/MerkleTree.cpp
-    backend/websocket/WebSocketServer.h
-    backend/websocket/WebSocketServer.cpp
 )
-
-# Link WebSocket++ library to your executable
-target_link_libraries(BlockchainSimulation PRIVATE websocketpp::websocketpp)
 
 # Include any additional dependencies here (e.g., Boost)
 # target_link_libraries(BlockchainSimulation PRIVATE Boost::Boost)
 
-# Set output directory for the executable (optional)
-# set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+# Find OpenSSL and link it to the target
+find_package(OpenSSL REQUIRED)
+target_link_libraries(BlockchainSimulation OpenSSL::Crypto)
 
-# Add compiler-specific flags if needed
-# For example, to enable all warnings:
-# if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-#     target_compile_options(BlockchainSimulation PRIVATE -Wall -Wextra -pedantic)
-# endif()
+# Set output directory for the executable (optional)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)

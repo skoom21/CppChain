@@ -2,14 +2,15 @@
 #define TRANSACTION_H
 
 #include <string>
+#include <iostream>
 
 struct Transaction {
     std::string sender;
     std::string receiver;
     double amount;
 
-    Transaction(const std::string& sender, const std::string& receiver, double amount);
-    // Add other transaction-related methods if needed
+    Transaction(std::string sender, std::string receiver, double amount);
+    void printTransaction();
 };
 
 #endif // TRANSACTION_H

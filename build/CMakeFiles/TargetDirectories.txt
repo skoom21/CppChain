@@ -1,3 +1,0 @@
-/workspaces/CppChain/build/CMakeFiles/rebuild_cache.dir
-/workspaces/CppChain/build/CMakeFiles/edit_cache.dir
-/workspaces/CppChain/build/CMakeFiles/backend.dir

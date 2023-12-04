@@ -1,44 +1,105 @@
 #include "Block.h"
+#include <string>
+#include <ctime>
+#include <openssl/sha.h>
+#include <sstream>
+#include <iomanip>
+#include <iostream>
 
-Block::Block() {
-    // Initialize block properties here
+using namespace std;
+
+Block::Block()
+{
+    // Initialize default values for a new block
+    index = 0;
+    previousHash = "";
+    merkleRoot = "";
+    timestamp = to_string(time(0));
+    nonce = "";
+    hash = "";
 }
 
-Block::Block(int index, const std::string& previousHash, const std::vector<Transaction>& transactions,
-             const std::string& merkleRoot, const std::string& timestamp, const std::string& nonce, const std::string& hash)
-    : index(index), previousHash(previousHash), transactions(transactions),
-      merkleRoot(merkleRoot), timestamp(timestamp), nonce(nonce), hash(hash) {
-    // Implement constructor logic if needed
+Block::Block(int size, string prevhash, vector<Transaction> transactions)
+{
+    // Implement this constructor to initialize a new block with the provided data
+    // You should set the index, previousHash, transactions, and calculate the hash
+
+    // Example:
+    index = size;
+    previousHash = prevhash;
+    this->transactions = transactions;
+    timestamp = to_string(time(0));
+    nonce = "0";
+    hash = calculateHash();
 }
 
-int Block::getIndex() const {
-    return index;
+string Block::calculateHash()
+{
+    // Implement this function to calculate and return the hash of the block
+
+    // Example:
+    string dataToHash = to_string(index) + previousHash + merkleRoot + timestamp + nonce;
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, dataToHash.c_str(), dataToHash.length());
+    SHA256_Final(hash, &sha256);
+
+    stringstream ss;
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        ss << hex << setw(2) << setfill('0') << static_cast<int>(hash[i]);
+    }
+
+    return ss.str();
 }
 
-std::string Block::getPreviousHash() const {
-    return previousHash;
+bool Block::isHashValid()
+{
+    return calculateHash() == hash;
 }
 
-std::vector<Transaction> Block::getTransactions() const {
-    return transactions;
+// Implement the remaining member functions as needed
+
+void Block::printBlock(Block block) {
+   // Implement this function to print block details
+   // Example:
+   cout << "Block Information:" << endl;
+   cout << "Index: " << block.getIndex() << endl;
+   cout << "Previous Hash: " << block.getPreviousHash() << endl;
+   // Print other block details
 }
 
-std::string Block::getMerkleRoot() const {
-    return merkleRoot;
+int Block::getIndex() {
+   return index;
 }
 
-std::string Block::getTimestamp() const {
-    return timestamp;
+string Block::getPreviousHash() {
+   return previousHash;
 }
 
-std::string Block::getNonce() const {
-    return nonce;
+vector<Transaction> Block::getTransactions() {
+   return transactions;
 }
 
-std::string Block::getHash() const {
-    return hash;
+string Block::getMerkleRoot() {
+   return merkleRoot;
 }
 
-void Block::setMerkleRoot(const std::string& merkleRoot) {
-    this->merkleRoot = merkleRoot;
+string Block::getTimestamp() {
+   return timestamp;
 }
+
+string Block::getNonce() {
+   return nonce;
+}
+
+
+string Block::getHash() {
+   return hash;
+}
+
+void Block::setMerkleRoot(string merkleRoot) {
+   this->merkleRoot = merkleRoot;
+}
+
