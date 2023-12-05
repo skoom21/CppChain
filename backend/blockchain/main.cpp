@@ -1,9 +1,12 @@
 #include <iostream>
 #include <vector>
 #include <random>
-#include "Blockchain.h" // Assuming you've included your blockchain classes
+#include "Blockchain.h"
+#include "httplib.h"
+#include "json.hpp"
 
-using namespace std; // Add this line to use the std namespace
+using namespace std;
+using json = nlohmann::json;
 
 // Function to generate random transactions
 Transaction generateRandomTransaction() {
@@ -13,12 +16,44 @@ Transaction generateRandomTransaction() {
     return Transaction(sender, receiver, amount);
 }
 
-// Function to simulate a blockchain with random blocks
-void simulateBlockchain(int numBlocks) {
+// Function to serialize a block to JSON
+json blockToJson(Block& block) {
+    json blockJson;
+    blockJson["index"] = block.getIndex();
+    blockJson["previousHash"] = block.getPreviousHash();
+    blockJson["merkleRoot"] = block.getMerkleRoot();
+    blockJson["timestamp"] = block.getTimestamp();
+    blockJson["nonce"] = block.getNonce();
+    blockJson["hash"] = block.getHash();
+
+    // Serialize transactions for this block
+    json transactionsJson;
+    for (const Transaction& transaction : block.getTransactions()) {
+        json transactionJson;
+        transactionJson["sender"] = transaction.sender;
+        transactionJson["receiver"] = transaction.receiver;
+        transactionJson["amount"] = transaction.amount;
+        transactionsJson.push_back(transactionJson);
+    }
+
+    blockJson["transactions"] = transactionsJson;
+    return blockJson;
+}
+
+int main() {
+    // Seed the random number generator
+    srand(static_cast<unsigned>(time(0)));
+
+    int numBlocks = 10; // Change this to the number of blocks you want to generate
     Blockchain blockchain;
 
-    for (int i = 0; i < numBlocks; i++) {
-        int numTransactions = rand() % 5 + 1; // Generate 1 to 5 random transactions for each block
+    // Create an HTTP server instance
+    httplib::Server server;
+
+    // Define an endpoint to mine a block
+    server.Post("/mine", [&blockchain](const httplib::Request& req, httplib::Response& res) {
+        // Implement logic to mine a block and add it to the blockchain
+        int numTransactions = rand() % 5 + 1;
         vector<Transaction> transactions;
 
         for (int j = 0; j < numTransactions; j++) {
@@ -27,36 +62,36 @@ void simulateBlockchain(int numBlocks) {
 
         blockchain.mineBlock(transactions);
 
-        printBlockAsJSON(blockchain.getChain().back()); // Print the last block as JSON
-        // Print some information about the generated block
-        cout << "Block " << i + 1 << " mined with " << numTransactions << " transactions." << endl;
-    }
+        // Respond with a JSON message indicating success
+        json responseJson;
+        responseJson["message"] = "Block mined successfully.";
+        res.set_content(responseJson.dump(), "application/json");
+    });
 
-    // Check the validity of the blockchain
-    if (blockchain.isChainValid()) {
-        cout << "Blockchain is valid!" << endl;
-    } else {
-        cout << "Blockchain is NOT valid!" << endl;
-    }
-}
+    // Define an endpoint to retrieve the blockchain data
+    server.Get("/blockchain", [&blockchain](const httplib::Request& req, httplib::Response& res) {
+        // Serialize the blockchain to JSON
+        json blockchainJson;
+        for ( Block& block : blockchain.getChain()) {
+            blockchainJson.push_back(blockToJson(block));
+        }
 
-void printBlockAsJSON(const Block& block) {
-    cout << "{" << endl;
-    cout << "  \"index\": " << block.getIndex() << "," << endl;
-    cout << "  \"previousHash\": \"" << block.getPreviousHash() << "\"," << endl;
-    cout << "  \"merkleRoot\": \"" << block.getMerkleRoot() << "\"," << endl;
-    cout << "  \"timestamp\": \"" << block.getTimestamp() << "\"," << endl;
-    cout << "  \"nonce\": \"" << block.getNonce() << "\"," << endl;
-    cout << "  \"hash\": \"" << block.getHash() << "\"" << endl;
-    cout << "}" << endl;
-}
+        res.set_content(blockchainJson.dump(), "application/json");
+    });
 
-int main() {
-    // Seed the random number generator
-    srand(static_cast<unsigned>(time(0)));
+    // Define an endpoint to check the blockchain validity
+    server.Get("/validity", [&blockchain](const httplib::Request& req, httplib::Response& res) {
+        // Implement logic to check the validity of the blockchain
+        bool isValid = blockchain.isChainValid();
 
-    int numBlocks = 10; // Change this to the number of blocks you want to generate
-    simulateBlockchain(numBlocks);
+        // Respond with a JSON message indicating validity
+        json responseJson;
+        responseJson["validity"] = isValid;
+        res.set_content(responseJson.dump(), "application/json");
+    });
+
+    // Start the HTTP server on port 8080
+    server.listen("0.0.0.0", 8080);
 
     return 0;
 }

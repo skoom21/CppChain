@@ -83,3 +83,8 @@ Block Blockchain::createNewBlock(std::vector<Transaction> transactions)
 
     return newBlock;
 }
+
+vector<Block> Blockchain::getChain()
+{
+    return chain;
+}

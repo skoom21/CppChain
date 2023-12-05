@@ -10,6 +10,8 @@ public:
     void mineBlock(std::vector<Transaction> transactions);
     Block createNewBlock(std::vector<Transaction> transactions);
     bool isChainValid();
+    vector<Block> getChain();
+
     // Other utility functions like getting the last block, etc.
 private:
     std::vector<Block> chain;
