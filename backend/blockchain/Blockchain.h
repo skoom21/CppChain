@@ -11,7 +11,8 @@ public:
     Block createNewBlock(std::vector<Transaction> transactions);
     bool isChainValid();
     vector<Block> getChain();
-
+    //function to clear the entire blockchain
+    void clearChain();
     // Other utility functions like getting the last block, etc.
 private:
     std::vector<Block> chain;
