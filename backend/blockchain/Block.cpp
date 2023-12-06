@@ -15,7 +15,6 @@ Block::Block()
     previousHash = "";
     merkleRoot = "";
     timestamp = to_string(time(0));
-    nonce = "";
     hash = "";
 }
 
@@ -29,7 +28,6 @@ Block::Block(int size, string prevhash, vector<Transaction> transactions)
     previousHash = prevhash;
     this->transactions = transactions;
     timestamp = to_string(time(0));
-    nonce = "0";
     hash = calculateHash();
 }
 
@@ -38,7 +36,7 @@ string Block::calculateHash()
     // Implement this function to calculate and return the hash of the block
 
     // Example:
-    string dataToHash = to_string(index) + previousHash + merkleRoot + timestamp + nonce;
+    string dataToHash = to_string(index) + previousHash + merkleRoot + timestamp ;
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
@@ -67,6 +65,9 @@ void Block::printBlock(Block block) {
    cout << "Block Information:" << endl;
    cout << "Index: " << block.getIndex() << endl;
    cout << "Previous Hash: " << block.getPreviousHash() << endl;
+   cout << "Merkle Root: " << block.getMerkleRoot() << endl;
+   cout << "Timestamp: " << block.getTimestamp() << endl;
+   cout << "Hash: " << block.getHash() << endl;
    // Print other block details
 }
 
@@ -90,9 +91,6 @@ string Block::getTimestamp() {
    return timestamp;
 }
 
-string Block::getNonce() {
-   return nonce;
-}
 
 
 string Block::getHash() {

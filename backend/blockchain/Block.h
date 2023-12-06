@@ -21,7 +21,6 @@ private:
     vector<Transaction> transactions;
     string merkleRoot;
     string timestamp;
-    string nonce;
     string hash;
 
 public:
@@ -32,7 +31,6 @@ public:
     vector<Transaction> getTransactions();
     string getMerkleRoot();
     string getTimestamp();
-    string getNonce();
     string getHash();
     void setMerkleRoot(string merkleRoot);
     void printBlock(Block block);

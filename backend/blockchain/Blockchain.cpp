@@ -83,3 +83,13 @@ Block Blockchain::createNewBlock(std::vector<Transaction> transactions)
 
     return newBlock;
 }
+
+void Blockchain:: clearChain()
+{
+    chain.clear();
+}
+
+vector<Block> Blockchain::getChain()
+{
+    return chain;
+}

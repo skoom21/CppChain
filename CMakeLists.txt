@@ -23,10 +23,12 @@ add_executable(BlockchainSimulation
 
 # Include any additional dependencies here (e.g., Boost)
 # target_link_libraries(BlockchainSimulation PRIVATE Boost::Boost)
-
+target_include_directories(BlockchainSimulation PRIVATE ${CMAKE_SOURCE_DIR}/cpp-httplib)
 # Find OpenSSL and link it to the target
 find_package(OpenSSL REQUIRED)
 target_link_libraries(BlockchainSimulation OpenSSL::Crypto)
+target_link_libraries(BlockchainSimulation pthread)  # Add this line
+
 
 # Set output directory for the executable (optional)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
