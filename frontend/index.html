@@ -36,7 +36,7 @@ let simulationInterval;
 
 // Function to send a preflight OPTIONS request before mining a block
 function sendPreflightRequest() {
-    return fetch('https://redesigned-guacamole-x6wvg6wj6pwf6p74-8080.app.github.dev/mine', {
+    return fetch('/mine', {
         method: 'OPTIONS', // Use OPTIONS method for preflight
         headers: {
             'Access-Control-Request-Method': 'POST', // Include the requested method
@@ -46,7 +46,7 @@ function sendPreflightRequest() {
         if (response.status === 200) {
             console.log("response 200")
             // Preflight request successful, proceed with POST request
-            return fetch('https://redesigned-guacamole-x6wvg6wj6pwf6p74-8080.app.github.dev/mine', {
+            return fetch('/mine', {
                 method: 'POST'
             });
         } else {
@@ -60,7 +60,7 @@ function sendPreflightRequest() {
         // Block mined successfully
         console.log(data.message);
         // Retrieve blockchain data from /blockchain endpoint
-        fetch('https://redesigned-guacamole-x6wvg6wj6pwf6p74-8080.app.github.dev/blockchain')
+        fetch('/blockchain')
             .then((response) => response.json())
             .then((blockchainData) => {
                 console.log(blockchainData)
@@ -94,7 +94,7 @@ function pauseSimulation() {
 function stopSimulation() {
     clearInterval(simulationInterval);
     isRunning = false;
-    fetch('https://redesigned-guacamole-x6wvg6wj6pwf6p74-8080.app.github.dev/blockchain', { method: 'DELETE' })
+    fetch('/blockchain', { method: 'DELETE' })
                 .then((response) => {
                     if (response.ok) {
                         console.log('Blockchain cleared successfully');
