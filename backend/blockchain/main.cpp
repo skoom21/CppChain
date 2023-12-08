@@ -58,8 +58,8 @@ int main()
 
     server.Options("/blockchain", [](const httplib::Request &req, httplib::Response &res)
                    {
-                       res.set_header("Access-Control-Allow-Origin", "https://redesigned-guacamole-x6wvg6wj6pwf6p74-3000.app.github.dev"); // Change to your frontend URL
-                       res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                       res.set_header("Access-Control-Allow-Origin", "https://effective-fiesta-w67gq67wp743v4vp-3000.app.github.dev"); // Change to your frontend URL
+                       res.set_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
                        res.set_header("Access-Control-Allow-Headers", "Content-Type");
                        res.set_header("Access-Control-Max-Age", "86400");
                        res.status = 200;
@@ -67,7 +67,7 @@ int main()
 
     server.Options("/mine", [](const httplib::Request &req, httplib::Response &res)
                 {
-                    res.set_header("Access-Control-Allow-Origin", "https://redesigned-guacamole-x6wvg6wj6pwf6p74-3000.app.github.dev"); // Change to your frontend URL
+                    res.set_header("Access-Control-Allow-Origin", "https://effective-fiesta-w67gq67wp743v4vp-3000.app.github.dev"); // Change to your frontend URL
                     res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
                     res.set_header("Access-Control-Allow-Headers", "Content-Type");
                     res.set_header("Access-Control-Max-Age", "86400");
@@ -78,7 +78,7 @@ int main()
     server.Post("/mine", [&blockchain](const httplib::Request &req, httplib::Response &res)
                 {
                     // Set CORS headers for the POST request
-                    res.set_header("Access-Control-Allow-Origin", "https://redesigned-guacamole-x6wvg6wj6pwf6p74-3000.app.github.dev"); // Change to your frontend URL
+                    res.set_header("Access-Control-Allow-Origin", "https://effective-fiesta-w67gq67wp743v4vp-3000.app.github.dev"); // Change to your frontend URL
                     res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
                     res.set_header("Access-Control-Allow-Headers", "Content-Type");
 
@@ -103,7 +103,7 @@ int main()
     server.Get("/blockchain", [&blockchain](const httplib::Request &req, httplib::Response &res)
                {
                    // Set CORS headers for the GET request
-                   res.set_header("Access-Control-Allow-Origin", "https://redesigned-guacamole-x6wvg6wj6pwf6p74-3000.app.github.dev"); // Change to your frontend URL
+                   res.set_header("Access-Control-Allow-Origin", "https://effective-fiesta-w67gq67wp743v4vp-3000.app.github.dev"); // Change to your frontend URL
                    res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
                    res.set_header("Access-Control-Allow-Headers", "Content-Type");
 
@@ -120,6 +120,10 @@ int main()
     // Define an endpoint to delete the entire blockchain
     server.Delete("/blockchain", [&blockchain](const httplib::Request &req, httplib::Response &res)
                   {
+                    // Set CORS headers for the GET request
+                   res.set_header("Access-Control-Allow-Origin", "https://effective-fiesta-w67gq67wp743v4vp-3000.app.github.dev"); // Change to your frontend URL
+                   res.set_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+                   res.set_header("Access-Control-Allow-Headers", "Content-Type");
                       // Clear the blockchain
                       blockchain.clearChain();                      // Respond with a JSON message indicating success
                       json responseJson;

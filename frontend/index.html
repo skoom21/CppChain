@@ -1,199 +1,208 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Blockchain Simulation</title>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="js/vivagraph.js"></script>
-    <script type="text/javascript" src="js/webgl-programs.js"></script>  
-    <style>
-        /* Add your styles here */
-        body {
-            margin: 0;
-            padding: 0;
-            position: relative;
-        }
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Blockchain Simulation</title>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script type="text/javascript" src="js/vivagraph.js"></script>
+        <script type="text/javascript" src="js/webgl-programs.js"></script>  
+        <style>
+            /* Add your styles here */
+            body {
+                margin: 0;
+                padding: 0;
+                position: relative;
+            }
 
-        #g {
-            background-color: black;
-            width: 100%;
-            height: 600px;
-        }
+            #g {
+                background-color: black;
+                width: 100%;
+                height: 600px;
+            }
 
-        /* Add your additional styles here */
+            #infoPopup {
+                display: none;
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background-color: gray;
+                padding: 10px;
+                border-radius: 5px;
+                color: white;
+                z-index: 100;
+                max-width: 300px;
+            }
 
-    </style>
-</head>
-<body>
-    <div id="g" style="background-color:black; width:100%; height:600px;"></div>
-    <button id="startSimulation">Start Simulation</button>
-    <button id="pauseSimulation">Pause Simulation</button>
-    <button id="stopSimulation">Stop Simulation</button>
-    <script>
-        // Define variables to keep track of simulation state
-let isRunning = false;
-let simulationInterval;
+            /* Add your additional styles here */
 
-// Function to send a preflight OPTIONS request before mining a block
-function sendPreflightRequest() {
-    return fetch('/mine', {
-        method: 'OPTIONS', // Use OPTIONS method for preflight
-        headers: {
-            'Access-Control-Request-Method': 'POST', // Include the requested method
-        },
-    })
-    .then((response) => {
-        if (response.status === 200) {
-            console.log("response 200")
-            // Preflight request successful, proceed with POST request
-            return fetch('/mine', {
-                method: 'POST'
-            });
-        } else {
-            // Preflight request failed, handle the error
-            console.error('Preflight request failed:', response.statusText);
-            return Promise.reject('Preflight request failed');
-        }
-    })
-    .then((response) => response.json())
-    .then((data) => {
-        // Block mined successfully
-        console.log(data.message);
-        // Retrieve blockchain data from /blockchain endpoint
-        fetch('/blockchain')
-            .then((response) => response.json())
-            .then((blockchainData) => {
-                console.log(blockchainData)
-                // Visualize the blockchain data using VivaGraph.js
-                visualizeBlockchain(blockchainData);
-            })
-            .catch((error) => {
-                console.error('Error retrieving blockchain data:', error);
-            });
-    })
-    .catch((error) => {
-        console.error('Error mining a block:', error);
-    });
-}
+        </style>
+    </head>
+    <body>
+        <div id="g" style="background-color:black; width:100%; height:600px;"></div>
+        <button id="startSimulation">Start Simulation</button>
+        <button id="pauseSimulation">Pause Simulation</button>
+        <button id="stopSimulation">Stop Simulation</button>
+        <button id="speedUp">Speed Up</button>
+        <button id="slowDown">Slow Down</button>
+        <button id="clear">Clear</button>
+        <span id="blockSpawnTime"></span>
+        <script>
+            let isRunning = false;
+            let simulationInterval;
+            let simulationIntervalTime = 3000; // Default interval time in milliseconds
+            let graph = null;
+            let renderer = null;
+            let addedBlocks = new Set();
+            let addedTransactions = new Set();
 
-// Function to start the simulation with a 3-second interval
-function startSimulation() {
-    if (isRunning) return; // Simulation is already running
-    isRunning = true;
-
-    simulationInterval = setInterval(sendPreflightRequest, 3000);
-}
-
-// Function to pause the simulation
-function pauseSimulation() {
-    clearInterval(simulationInterval);
-    isRunning = false;
-}
-
-// Function to stop the simulation
-function stopSimulation() {
-    clearInterval(simulationInterval);
-    isRunning = false;
-    fetch('/blockchain', { method: 'DELETE' })
+            function sendPreflightRequest() {
+                const startTime = Date.now();
+                return fetch('https://effective-fiesta-w67gq67wp743v4vp-8080.app.github.dev/mine', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Access-Control-Request-Method': 'POST',
+                    },
+                })
                 .then((response) => {
-                    if (response.ok) {
-                        console.log('Blockchain cleared successfully');
+                    if (response.status === 200) {
+                        console.log("response 200")
+                        return fetch('https://effective-fiesta-w67gq67wp743v4vp-8080.app.github.dev/mine', {
+                            method: 'POST'
+                        });
                     } else {
-                        console.error('Error clearing the blockchain');
+                        console.error('Preflight request failed:', response.statusText);
+                        return Promise.reject('Preflight request failed');
                     }
                 })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data.message);
+                    fetch('https://effective-fiesta-w67gq67wp743v4vp-8080.app.github.dev/blockchain')
+                        .then((response) => response.json())
+                        .then((blockchainData) => {
+                            console.log(blockchainData)
+                            visualizeBlockchain(blockchainData);
+                        })
+                        .catch((error) => {
+                            console.error('Error retrieving blockchain data:', error);
+                        });
+                    const endTime = Date.now();
+                    const spawnTime = endTime - startTime;
+                    document.getElementById('blockSpawnTime').textContent = `Block Spawn Time: ${spawnTime}ms`;
+                })
                 .catch((error) => {
-                    console.error('Error clearing the blockchain:', error);
+                    console.error('Error mining a block:', error);
                 });
-}
-
-// Global variables for graph and renderer
-let graph = null;
-let renderer = null;
-let addedBlocks = new Set();
-let addedTransactions = new Set();
-
-function initGraph() {
-    graph = Viva.Graph.graph();
-
-    var graphics = Viva.Graph.View.webglGraphics();
-    graphics.node(function(node) {
-        // Define node colors and sizes
-        var color;
-        var size = 8;
-        if (node.data && node.data.type) {
-            if (node.data.type === 'block') {
-                color = 0x009688; // Teal color for blocks
-                size = 12;
-            } else if (node.data.type === 'transaction') {
-                color = 0xFF0000; // Red color for transactions
             }
-        } else {
-            color = 0xCCCCCC; // Grey color for unknown types
-        }
-        return Viva.Graph.View.webglSquare(size, color);
-    });
 
-    renderer = Viva.Graph.View.renderer(graph, {
-        graphics: graphics,
-        container: document.getElementById('g')
-    });
-    renderer.run();
-}
-
-function visualizeBlockchain(blockchainData) {
-    if (!Array.isArray(blockchainData)) {
-        console.error('Invalid blockchain data:', blockchainData);
-        return;
-    }
-
-    // Add new blocks and transactions to the graph
-    blockchainData.forEach((block) => {
-        var blockId = block.hash; // Use the hash as the block ID
-        if (!addedBlocks.has(blockId)) {
-            graph.addNode(blockId, { type: 'block' });
-            addedBlocks.add(blockId);
-
-            if (block.previousHash && block.previousHash !== '' && addedBlocks.has(block.previousHash)) {
-                graph.addLink(blockId, block.previousHash);
+            function startSimulation() {
+                if (isRunning) return;
+                isRunning = true;
+                simulationInterval = setInterval(sendPreflightRequest, simulationIntervalTime);
             }
-        }
 
-        if (block.transactions && Array.isArray(block.transactions)) {
-            block.transactions.forEach((transaction, i) => {
-                var transactionId = `${blockId}-tx-${i}`;
-                if (!addedTransactions.has(transactionId)) {
-                    graph.addNode(transactionId, { type: 'transaction' });
-                    graph.addLink(blockId, transactionId);
-                    addedTransactions.add(transactionId);
+            function clearGraph() {
+            graph.clear()
+            }
+
+            function pauseSimulation() {
+                clearInterval(simulationInterval);
+                isRunning = false;
+            }
+
+            function stopSimulation() {
+                clearInterval(simulationInterval);
+                isRunning = false;
+                return fetch('https://effective-fiesta-w67gq67wp743v4vp-8080.app.github.dev/blockchain', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Access-Control-Request-Method': 'DELETE',
+                    },
+                })
+                .then((response) => {
+                    if (response.status === 200) {
+                        console.log("response 200")
+                        return fetch('https://effective-fiesta-w67gq67wp743v4vp-8080.app.github.dev/blockchain', {
+                            method: 'DELETE'
+                        });
+                    } else {
+                        console.error('Preflight request failed:', response.statusText);
+                        return Promise.reject('Preflight request failed');
+                    }
+                })
+            }
+
+            function adjustSimulationSpeed(isSpeedingUp) {
+                clearInterval(simulationInterval);
+                simulationIntervalTime = isSpeedingUp ? Math.max(1000, simulationIntervalTime - 500) : Math.min(10000, simulationIntervalTime + 500);
+                if (isRunning) {
+                    simulationInterval = setInterval(sendPreflightRequest, simulationIntervalTime);
                 }
-            });
-        }
-    });
+            }
 
-    // Update the renderer if needed
-    if (renderer) {
-        renderer.reset(); // Resets the view of the graph
-        renderer.resume(); // Resumes the rendering if paused
-    }
-}
+            function initGraph() {
+                graph = Viva.Graph.graph();
 
-// Call this once when your page loads
-initGraph();
+                var graphics = Viva.Graph.View.webglGraphics(), nodeSize = 20;
+                graphics.setNodeProgram(Viva.Graph.View.webglImageNodeProgram());
+                graphics.node(function(node) {
+                    // Here you can decide which image to use based on the node data
+                    var imageUrl = node.data && node.data.type === 'block' ? 'https://i.imgur.com/Vevq91p.png' : 'https://i.imgur.com/gsDZ7Y9.png';
+                    var ui = Viva.Graph.View.webglImage(nodeSize, imageUrl);
+                    return ui;
+                });
 
+                renderer = Viva.Graph.View.renderer(graph, {
+                    graphics: graphics,
+                    renderLinks: true,
+                    prerender: true,
+                    container: document.getElementById('g')
+                });
+                renderer.run();
+            }
 
+            function visualizeBlockchain(blockchainData) {
+                if (!Array.isArray(blockchainData)) {
+                    console.error('Invalid blockchain data:', blockchainData);
+                    return;
+                }
 
+                blockchainData.forEach((block) => {
+                    var blockId = block.hash;
+                    if (!addedBlocks.has(blockId)) {
+                        graph.addNode(blockId, { type: 'block' });
+                        addedBlocks.add(blockId);
 
+                        if (block.previousHash && block.previousHash !== '' && addedBlocks.has(block.previousHash)) {
+                            graph.addLink(blockId, block.previousHash);
+                        }
+                    }
 
+                    if (block.transactions && Array.isArray(block.transactions)) {
+                        block.transactions.forEach((transaction, i) => {
+                            var transactionId = `${blockId}-tx-${i}`;
+                            if (!addedTransactions.has(transactionId)) {
+                                graph.addNode(transactionId, { type: 'transaction' });
+                                graph.addLink(blockId, transactionId);
+                                addedTransactions.add(transactionId);
+                            }
+                        });
+                    }
+                });
 
+                if (renderer) {
+                    renderer.resume();
+                }
+            }
 
+            initGraph();
 
-// Add event listeners to buttons
-document.getElementById('startSimulation').addEventListener('click', startSimulation);
-document.getElementById('pauseSimulation').addEventListener('click', pauseSimulation);
-document.getElementById('stopSimulation').addEventListener('click', stopSimulation);
-
-                        
-    </script>
-</body>
-</html>
+            document.getElementById('startSimulation').addEventListener('click', startSimulation);
+            document.getElementById('pauseSimulation').addEventListener('click', pauseSimulation);
+            document.getElementById('stopSimulation').addEventListener('click', stopSimulation);
+            document.getElementById('clear').addEventListener('click', clearGraph);
+            document.getElementById('speedUp').addEventListener('click', () => adjustSimulationSpeed(true));
+            document.getElementById('slowDown').addEventListener('click', () => adjustSimulationSpeed(false));
+        </script>
+    </body>
+    </html>
